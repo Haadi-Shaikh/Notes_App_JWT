@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Noted — Your Personal Notes</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Reset & Base ─────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0f0f11;
+        --bg2: #16161a;
+        --bg3: #1e1e24;
+        --border: rgba(255, 255, 255, 0.07);
+        --border2: rgba(255, 255, 255, 0.13);
+        --text: #e8e6e1;
+        --muted: #7a7a8c;
+        --accent: #c8a96e;
+        --accent2: #e8c989;
+        --danger: #e05c5c;
+        --success: #5cbe8a;
+        --pin: #e8c34a;
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      /* ── Auth Screen ─────────────────────────────────── */
+      #auth-screen {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      #auth-screen::before {
+        content: "";
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(200, 169, 110, 0.08) 0%,
+          transparent 70%
+        );
+        top: -150px;
+        right: -150px;
+        pointer-events: none;
+      }
+
+      #auth-screen::after {
+        content: "";
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(92, 190, 138, 0.05) 0%,
+          transparent 70%
+        );
+        bottom: -100px;
+        left: -100px;
+        pointer-events: none;
+      }
+
+      .auth-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 48px 44px;
+        width: 100%;
+        max-width: 420px;
+        animation: fadeUp 0.5s ease both;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .auth-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
+      }
+
+      .auth-tagline {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 36px;
+      }
+
+      .auth-tabs {
+        display: flex;
+        gap: 0;
+        background: var(--bg3);
+        border-radius: var(--radius-sm);
+        padding: 4px;
+        margin-bottom: 28px;
+      }
+
+      .auth-tab {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .auth-tab.active {
+        background: var(--bg2);
+        color: var(--text);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .field {
+        margin-bottom: 16px;
+      }
+
+      .field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        padding: 11px 14px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        border-color: var(--accent);
+      }
+
+      .field textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .field select {
+        cursor: pointer;
+      }
+      .field select option {
+        background: var(--bg2);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 20px;
+        border: none;
+        border-radius: var(--radius-sm);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.18s;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #0f0f11;
+        width: 100%;
+      }
+      .btn-primary:hover {
+        background: var(--accent2);
+        transform: translateY(-1px);
+      }
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        padding: 7px 12px;
+        font-size: 13px;
+      }
+      .btn-ghost:hover {
+        border-color: var(--border2);
+        color: var(--text);
+      }
+
+      .btn-danger {
+        background: rgba(224, 92, 92, 0.12);
+        color: var(--danger);
+        border: 1px solid rgba(224, 92, 92, 0.2);
+        padding: 7px 12px;
+        font-size: 13px;
+      }
+      .btn-danger:hover {
+        background: rgba(224, 92, 92, 0.2);
+      }
+
+      .btn-icon {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        padding: 6px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        transition: all 0.15s;
+      }
+      .btn-icon:hover {
+        color: var(--text);
+        background: var(--bg3);
+      }
+
+      .alert {
+        padding: 10px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+      }
+      .alert.show {
+        display: block;
+      }
+      .alert-error {
+        background: rgba(224, 92, 92, 0.12);
+        color: #f08080;
+        border: 1px solid rgba(224, 92, 92, 0.2);
+      }
+      .alert-success {
+        background: rgba(92, 190, 138, 0.12);
+        color: #7de0aa;
+        border: 1px solid rgba(92, 190, 138, 0.2);
+      }
+
+      /* ── App Layout ──────────────────────────────────── */
+      #app-screen {
+        display: none;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+      #app-screen.show {
+        display: flex;
+      }
+
+      /* Topbar */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(15, 15, 17, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 24px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .topbar-logo {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: -0.3px;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .topbar-user {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .topbar-user span {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      /* Main container */
+      .app-body {
+        display: flex;
+        flex: 1;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 32px 24px;
+        gap: 28px;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+      }
+
+      .sidebar-section {
+        margin-bottom: 28px;
+      }
+
+      .sidebar-label {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 10px;
+        padding-left: 10px;
+      }
+
+      .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        border: none;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+      }
+
+      .sidebar-item:hover {
+        background: var(--bg2);
+        color: var(--text);
+      }
+      .sidebar-item.active {
+        background: rgba(200, 169, 110, 0.12);
+        color: var(--accent);
+      }
+
+      .sidebar-item .icon {
+        font-size: 15px;
+        width: 18px;
+        text-align: center;
+      }
+
+      .cat-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      /* Stats */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .stat-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        text-align: center;
+      }
+
+      .stat-num {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+
+      /* Main content */
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* Toolbar */
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+
+      .search-wrap {
+        flex: 1;
+        min-width: 180px;
+        position: relative;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-size: 15px;
+        pointer-events: none;
+      }
+
+      .search-input {
+        width: 100%;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 14px;
+        padding: 9px 14px 9px 38px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .search-input:focus {
+        border-color: var(--accent);
+      }
+
+      /* Notes Grid */
+      .notes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+      }
+
+      .note-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition:
+          border-color 0.2s,
+          transform 0.15s;
+        animation: fadeUp 0.3s ease both;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .note-card:hover {
+        border-color: var(--border2);
+        transform: translateY(-2px);
+      }
+
+      .note-card.pinned {
+        border-color: rgba(232, 195, 74, 0.3);
+      }
+
+      .note-card.pinned::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--pin);
+      }
+
+      .note-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .note-title {
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--text);
+        line-height: 1.3;
+        flex: 1;
+      }
+
+      .note-actions {
+        display: flex;
+        gap: 2px;
+        flex-shrink: 0;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .note-card:hover .note-actions {
+        opacity: 1;
+      }
+
+      .note-content {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .note-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+
+      .note-meta {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .note-cat {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+
+      .pin-icon {
+        color: var(--pin);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--muted);
+      }
+
+      .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+      }
+      .empty-title {
+        font-family: "Playfair Display", serif;
+        font-size: 22px;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .empty-sub {
+        font-size: 14px;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal-overlay.show {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--bg2);
+        border: 1px solid var(--border2);
+        border-radius: 16px;
+        padding: 32px;
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: fadeUp 0.25s ease both;
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+
+      .modal-title {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        font-weight: 500;
+      }
+
+      /* Pagination */
+      .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 32px;
+      }
+
+      .page-btn {
+        padding: 7px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        font-family: "DM Sans", sans-serif;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--bg2);
+        color: var(--muted);
+        transition: all 0.15s;
+      }
+      .page-btn:hover {
+        border-color: var(--border2);
+        color: var(--text);
+      }
+      .page-btn.active {
+        background: var(--accent);
+        color: #0f0f11;
+        border-color: var(--accent);
+        font-weight: 500;
+      }
+      .page-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      /* Loading */
+      .loading-dots {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        padding: 60px 0;
+      }
+      .loading-dots span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0.3;
+        animation: blink 1.2s infinite;
+      }
+      .loading-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .loading-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: var(--radius-sm);
+        padding: 12px 18px;
+        font-size: 13px;
+        color: var(--text);
+        z-index: 200;
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.3s;
+        max-width: 300px;
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .toast.success {
+        border-color: rgba(92, 190, 138, 0.3);
+        color: var(--success);
+      }
+      .toast.error {
+        border-color: rgba(224, 92, 92, 0.3);
+        color: var(--danger);
+      }
+
+      /* Category colors */
+      .cat-general {
+        background: #7a7a8c;
+      }
+      .cat-work {
+        background: #5c8be0;
+      }
+      .cat-personal {
+        background: #5cbe8a;
+      }
+      .cat-ideas {
+        background: #c8a96e;
+      }
+      .cat-todo {
+        background: #e05c5c;
+      }
+      .cat-other {
+        background: #9c5ce0;
+      }
+
+      @media (max-width: 700px) {
+        .app-body {
+          flex-direction: column;
+          padding: 16px;
+        }
+        .sidebar {
+          width: 100%;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ── Auth Screen ───────────────────────────────── -->
+    <div id="auth-screen">
+      <div class="auth-card">
+        <div class="auth-logo">Noted.</div>
+        <div class="auth-tagline">Your thoughts, beautifully kept.</div>
+
+        <div class="auth-tabs">
+          <button class="auth-tab active" onclick="switchTab('login')">
+            Sign In
+          </button>
+          <button class="auth-tab" onclick="switchTab('register')">
+            Register
+          </button>
+        </div>
+
+        <div id="auth-alert" class="alert"></div>
+
+        <!-- Login -->
+        <div id="login-form">
+          <div class="field">
+            <label>Username</label>
+            <input
+              type="text"
+              id="login-username"
+              placeholder="your username"
+              autocomplete="username"
+            />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input
+              type="password"
+              id="login-password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+          <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+        </div>
+
+        <!-- Register -->
+        <div id="register-form" style="display: none">
+          <div class="field">
+            <label>Username</label>
+            <input
+              type="text"
+              id="reg-username"
+              placeholder="choose a username"
+              autocomplete="username"
+            />
+          </div>
+          <div class="field">
+            <label
+              >Password
+              <span style="color: var(--muted); font-size: 11px"
+                >(min 6 chars)</span
+              ></label
+            >
+            <input
+              type="password"
+              id="reg-password"
+              placeholder="••••••••"
+              autocomplete="new-password"
+            />
+          </div>
+          <button class="btn btn-primary" onclick="doRegister()">
+            Create Account
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── App Screen ────────────────────────────────── -->
+    <div id="app-screen">
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-logo">Noted.</div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            Signed in as <span id="topbar-username">—</span>
+          </div>
+          <button class="btn btn-ghost" onclick="doLogout()">Sign Out</button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="app-body">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-section">
+            <div class="sidebar-label">Stats</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-num" id="stat-total">0</div>
+                <div class="stat-label">Total</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-num" id="stat-pinned">0</div>
+                <div class="stat-label">Pinned</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-label">Filter</div>
+            <button
+              class="sidebar-item active"
+              id="cat-all"
+              onclick="filterCategory('')"
+            >
+              <span class="icon">📋</span> All Notes
+            </button>
+            <button
+              class="sidebar-item"
+              id="cat-pinned-filter"
+              onclick="filterPinned()"
+            >
+              <span class="icon">📌</span> Pinned
+            </button>
+          </div>
+
+          <div class="sidebar-section">
+            <div class="sidebar-label">Categories</div>
+            <div id="category-list"></div>
+          </div>
+
+          <div class="sidebar-section">
+            <button
+              class="btn btn-primary"
+              style="width: 100%"
+              onclick="openAddModal()"
+            >
+              + New Note
+            </button>
+          </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main">
+          <!-- Toolbar -->
+          <div class="toolbar">
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span>
+              <input
+                class="search-input"
+                type="text"
+                id="search-input"
+                placeholder="Search notes…"
+                oninput="onSearch()"
+              />
+            </div>
+            <select
+              id="sort-select"
+              class="field"
+              style="
+                margin: 0;
+                width: auto;
+                background: var(--bg2);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 9px 12px;
+                color: var(--text);
+                font-family:
+                  DM Sans,
+                  sans-serif;
+                font-size: 14px;
+                outline: none;
+              "
+              onchange="loadNotes()"
+            >
+              <option value="">Latest first</option>
+              <option value="pinned">Pinned first</option>
+            </select>
+          </div>
+
+          <!-- Notes -->
+          <div id="notes-container">
+            <div class="loading-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div id="pagination" class="pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Add / Edit Modal ──────────────────────────── -->
+    <div class="modal-overlay" id="note-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title" id="modal-title">New Note</div>
+          <button class="btn-icon" onclick="closeModal()">✕</button>
+        </div>
+        <div id="modal-alert" class="alert"></div>
+        <div class="field">
+          <label>Title</label>
+          <input
+            type="text"
+            id="note-title"
+            placeholder="Give your note a title…"
+          />
+        </div>
+        <div class="field">
+          <label>Content</label>
+          <textarea
+            id="note-content"
+            rows="6"
+            placeholder="Write your note here…"
+          ></textarea>
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="note-category">
+            <option value="General">General</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Ideas">Ideas</option>
+            <option value="Todo">Todo</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div
+          style="
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+          "
+        >
+          <input
+            type="checkbox"
+            id="note-pinned"
+            style="
+              width: 16px;
+              height: 16px;
+              accent-color: var(--pin);
+              cursor: pointer;
+            "
+          />
+          <label
+            for="note-pinned"
+            style="font-size: 14px; color: var(--muted); cursor: pointer"
+            >Pin this note</label
+          >
+        </div>
+        <div style="display: flex; gap: 10px">
+          <button class="btn btn-primary" style="flex: 1" onclick="saveNote()">
+            Save Note
+          </button>
+          <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Delete Confirm Modal ──────────────────────── -->
+    <div class="modal-overlay" id="delete-modal">
+      <div class="modal" style="max-width: 380px; text-align: center">
+        <div style="font-size: 36px; margin-bottom: 12px">🗑️</div>
+        <div class="modal-title" style="margin-bottom: 8px">Delete note?</div>
+        <p style="color: var(--muted); font-size: 14px; margin-bottom: 24px">
+          This action cannot be undone.
+        </p>
+        <div style="display: flex; gap: 10px; justify-content: center">
+          <button
+            class="btn btn-danger"
+            style="flex: 1; max-width: 150px"
+            onclick="confirmDelete()"
+          >
+            Delete
+          </button>
+          <button
+            class="btn btn-ghost"
+            style="flex: 1; max-width: 150px"
+            onclick="closeDeleteModal()"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Toast ─────────────────────────────────────── -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // ── State ──────────────────────────────────────────
+      let token = localStorage.getItem("notes_token") || "";
+      let username = localStorage.getItem("notes_user") || "";
+      let editingId = null;
+      let deletingId = null;
+      let currentPage = 1;
+      let currentCat = "";
+      let showPinnedOnly = false;
+      let searchTimer = null;
+
+      const CAT_COLORS = {
+        General: "#7a7a8c",
+        Work: "#5c8be0",
+        Personal: "#5cbe8a",
+        Ideas: "#c8a96e",
+        Todo: "#e05c5c",
+        Other: "#9c5ce0",
+      };
+
+      // ── Boot ───────────────────────────────────────────
+      window.onload = () => {
+        if (token) showApp();
+      };
+
+      // ── Auth ───────────────────────────────────────────
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".auth-tab")
+          .forEach((t, i) =>
+            t.classList.toggle("active", (tab === "login" ? 0 : 1) === i),
+          );
+        document.getElementById("login-form").style.display =
+          tab === "login" ? "" : "none";
+        document.getElementById("register-form").style.display =
+          tab === "register" ? "" : "none";
+        clearAuthAlert();
+      }
+
+      async function doLogin() {
+        const u = document.getElementById("login-username").value.trim();
+        const p = document.getElementById("login-password").value;
+        if (!u || !p)
+          return showAuthAlert("Please fill in all fields.", "error");
+        const res = await api(
+          "/login",
+          "POST",
+          { username: u, password: p },
+          false,
+        );
+        if (res.success) {
+          token = res.access_token;
+          username = res.username;
+          localStorage.setItem("notes_token", token);
+          localStorage.setItem("notes_user", username);
+          showApp();
+        } else {
+          showAuthAlert(res.error, "error");
+        }
+      }
+
+      async function doRegister() {
+        const u = document.getElementById("reg-username").value.trim();
+        const p = document.getElementById("reg-password").value;
+        if (!u || !p)
+          return showAuthAlert("Please fill in all fields.", "error");
+        const res = await api(
+          "/register",
+          "POST",
+          { username: u, password: p },
+          false,
+        );
+        if (res.success) {
+          showAuthAlert("Account created! You can now sign in.", "success");
+          switchTab("login");
+          document.getElementById("login-username").value = u;
+        } else {
+          showAuthAlert(res.error, "error");
+        }
+      }
+
+      function doLogout() {
+        token = "";
+        username = "";
+        localStorage.removeItem("notes_token");
+        localStorage.removeItem("notes_user");
+        document.getElementById("app-screen").classList.remove("show");
+        document.getElementById("auth-screen").style.display = "";
+        document.getElementById("login-password").value = "";
+      }
+
+      function showApp() {
+        document.getElementById("auth-screen").style.display = "none";
+        document.getElementById("app-screen").classList.add("show");
+        document.getElementById("topbar-username").textContent = username;
+        loadNotes();
+        loadCategories();
+      }
+
+      // ── API helper ─────────────────────────────────────
+      const BASE_URL = "http://127.0.0.1:5000";
+
+      async function api(path, method = "GET", body = null, auth = true) {
+        const headers = { "Content-Type": "application/json" };
+
+        if (auth && token) {
+          headers["Authorization"] = "Bearer " + token;
+        }
+        console.log("Token :", token);
+        try {
+          const res = await fetch(BASE_URL + path, {
+            method: method,
+            headers: headers,
+            body: body ? JSON.stringify(body) : null,
+          });
+
+          let data;
+
+          try {
+            data = await res.json();
+          } catch (e) {
+            console.error("Invalid JSON response");
+            return { success: false, error: "Server error" };
+          }
+
+          console.log("API:", path, res.status, data);
+
+          if (res.status === 401 && auth) {
+            doLogout();
+            return { success: false, error: "Session expired." };
+          }
+
+          return data;
+        } catch (e) {
+          console.error("ERROR:", e);
+          return { success: false, error: "Network error." };
+        }
+      }
+
+      // ── Load Notes ─────────────────────────────────────
+      async function loadNotes(page = 1) {
+        currentPage = page;
+        const search = document.getElementById("search-input").value.trim();
+        let url = `/notes?page=${page}&per_page=9`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        if (currentCat && !showPinnedOnly)
+          url += `&category=${encodeURIComponent(currentCat)}`;
+
+        document.getElementById("notes-container").innerHTML =
+          '<div class="loading-dots"><span></span><span></span><span></span></div>';
+
+        const res = await api(url);
+        if (!res.success) return;
+
+        let notes = res.notes;
+        if (showPinnedOnly) notes = notes.filter((n) => n.pinned);
+
+        // Update stats
+        document.getElementById("stat-total").textContent = res.total;
+        document.getElementById("stat-pinned").textContent = res.notes.filter(
+          (n) => n.pinned,
+        ).length;
+
+        renderNotes(notes, res);
+        renderPagination(res.page, res.pages);
+      }
+
+      function renderNotes(notes, res) {
+        const container = document.getElementById("notes-container");
+        if (!notes.length) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📝</div>
+              <div class="empty-title">No notes yet</div>
+              <div class="empty-sub">Click "New Note" to get started.</div>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = '<div class="notes-grid" id="notes-grid"></div>';
+        const grid = document.getElementById("notes-grid");
+
+        notes.forEach((note, i) => {
+          const color = CAT_COLORS[note.category] || CAT_COLORS.Other;
+          const card = document.createElement("div");
+          card.className = "note-card" + (note.pinned ? " pinned" : "");
+          card.style.animationDelay = i * 0.04 + "s";
+          card.innerHTML = `
+            <div class="note-card-top">
+              <div class="note-title">${esc(note.title)}</div>
+              <div class="note-actions">
+                <button class="btn-icon ${note.pinned ? "pin-icon" : ""}" title="${note.pinned ? "Unpin" : "Pin"}"
+                  onclick="togglePin(${note.id})">📌</button>
+                <button class="btn-icon" title="Edit" onclick="openEditModal(${note.id})">✏️</button>
+                <button class="btn-icon" title="Delete" onclick="openDeleteModal(${note.id})">🗑️</button>
+              </div>
+            </div>
+            <div class="note-content">${esc(note.content)}</div>
+            <div class="note-footer">
+              <div class="note-meta">${note.updated_at}</div>
+              <div class="note-cat" style="border-color:${color}40;color:${color}">
+                ${esc(note.category)}
+              </div>
+            </div>`;
+          grid.appendChild(card);
+        });
+      }
+
+      function renderPagination(page, pages) {
+        const el = document.getElementById("pagination");
+        if (pages <= 1) {
+          el.innerHTML = "";
+          return;
+        }
+        let html = `<button class="page-btn" onclick="loadNotes(${page - 1})" ${page === 1 ? "disabled" : ""}>← Prev</button>`;
+        for (let i = 1; i <= pages; i++) {
+          html += `<button class="page-btn ${i === page ? "active" : ""}" onclick="loadNotes(${i})">${i}</button>`;
+        }
+        html += `<button class="page-btn" onclick="loadNotes(${page + 1})" ${page === pages ? "disabled" : ""}>Next →</button>`;
+        el.innerHTML = html;
+      }
+
+      // ── Categories ─────────────────────────────────────
+      async function loadCategories() {
+        const res = await api("/notes/categories");
+        if (!res.success) return;
+        const el = document.getElementById("category-list");
+        el.innerHTML = "";
+        res.categories.forEach((cat) => {
+          const color = CAT_COLORS[cat] || CAT_COLORS.Other;
+          const btn = document.createElement("button");
+          btn.className = "sidebar-item";
+          btn.id = "cat-" + cat;
+          btn.onclick = () => filterCategory(cat);
+          btn.innerHTML = `<span class="cat-dot" style="background:${color}"></span>${cat}`;
+          el.appendChild(btn);
+        });
+      }
+
+      function filterCategory(cat) {
+        currentCat = cat;
+        showPinnedOnly = false;
+        document
+          .querySelectorAll(".sidebar-item")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .getElementById(cat ? "cat-" + cat : "cat-all")
+          .classList.add("active");
+        loadNotes(1);
+      }
+
+      function filterPinned() {
+        showPinnedOnly = true;
+        currentCat = "";
+        document
+          .querySelectorAll(".sidebar-item")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById("cat-pinned-filter").classList.add("active");
+        loadNotes(1);
+      }
+
+      // ── Search ─────────────────────────────────────────
+      function onSearch() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => loadNotes(1), 350);
+      }
+
+      // ── Add / Edit Modal ───────────────────────────────
+      function openAddModal() {
+        editingId = null;
+        document.getElementById("modal-title").textContent = "New Note";
+        document.getElementById("note-title").value = "";
+        document.getElementById("note-content").value = "";
+        document.getElementById("note-category").value = "General";
+        document.getElementById("note-pinned").checked = false;
+        clearModalAlert();
+        document.getElementById("note-modal").classList.add("show");
+        document.getElementById("note-title").focus();
+      }
+
+      async function openEditModal(id) {
+        editingId = id;
+        // find the note from DOM to pre-fill (re-fetch if needed)
+        const res = await api(`/notes?per_page=1&page=1`);
+        // fetch all to find by id
+        const all = await api("/notes?per_page=100");
+        const note = all.notes?.find((n) => n.id === id);
+        if (!note) return toast("Note not found.", "error");
+
+        document.getElementById("modal-title").textContent = "Edit Note";
+        document.getElementById("note-title").value = note.title;
+        document.getElementById("note-content").value = note.content;
+        document.getElementById("note-category").value = note.category;
+        document.getElementById("note-pinned").checked = note.pinned;
+        clearModalAlert();
+        document.getElementById("note-modal").classList.add("show");
+        document.getElementById("note-content").focus();
+      }
+
+      function closeModal() {
+        document.getElementById("note-modal").classList.remove("show");
+      }
+
+      async function saveNote() {
+        const title =
+          document.getElementById("note-title").value.trim() || "Untitled";
+        const content = document.getElementById("note-content").value.trim();
+        const category = document.getElementById("note-category").value;
+        const pinned = document.getElementById("note-pinned").checked;
+
+        if (!content) return showModalAlert("Content is required.");
+
+        let res;
+        if (editingId) {
+          res = await api(`/update-note/${editingId}`, "PUT", {
+            title,
+            content,
+            category,
+            pinned,
+          });
+        } else {
+          res = await api("/add-note", "POST", {
+            title,
+            content,
+            category,
+            pinned,
+          });
+        }
+
+        if (res.success) {
+          closeModal();
+          toast(editingId ? "Note updated!" : "Note added!", "success");
+          loadNotes(currentPage);
+          loadCategories();
+        } else {
+          showModalAlert(res.error);
+        }
+      }
+
+      // ── Delete ─────────────────────────────────────────
+      function openDeleteModal(id) {
+        deletingId = id;
+        document.getElementById("delete-modal").classList.add("show");
+      }
+
+      function closeDeleteModal() {
+        document.getElementById("delete-modal").classList.remove("show");
+      }
+
+      async function confirmDelete() {
+        const res = await api(`/delete-note/${deletingId}`, "DELETE");
+        if (res.success) {
+          closeDeleteModal();
+          toast("Note deleted.", "success");
+          loadNotes(currentPage);
+          loadCategories();
+        } else {
+          toast(res.error, "error");
+        }
+      }
+
+      // ── Pin Toggle ─────────────────────────────────────
+      async function togglePin(id) {
+        const res = await api(`/pin-note/${id}`, "PATCH");
+        if (res.success) {
+          toast(res.pinned ? "Note pinned." : "Note unpinned.", "success");
+          loadNotes(currentPage);
+        } else {
+          toast(res.error, "error");
+        }
+      }
+
+      // ── UI helpers ─────────────────────────────────────
+      function esc(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function toast(msg, type = "success") {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.className = `toast show ${type}`;
+        setTimeout(() => el.classList.remove("show"), 3000);
+      }
+
+      function showAuthAlert(msg, type) {
+        const el = document.getElementById("auth-alert");
+        el.textContent = msg;
+        el.className = `alert show alert-${type}`;
+      }
+      function clearAuthAlert() {
+        document.getElementById("auth-alert").className = "alert";
+      }
+
+      function showModalAlert(msg) {
+        const el = document.getElementById("modal-alert");
+        el.textContent = msg;
+        el.className = "alert show alert-error";
+      }
+      function clearModalAlert() {
+        document.getElementById("modal-alert").className = "alert";
+      }
+
+      // Close modals on overlay click
+      document.getElementById("note-modal").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) closeModal();
+      });
+      document.getElementById("delete-modal").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) closeDeleteModal();
+      });
+
+      // Enter key submits auth forms
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          if (
+            document.getElementById("login-form").style.display !== "none" &&
+            document.getElementById("auth-screen").style.display !== "none"
+          )
+            doLogin();
+          if (
+            document.getElementById("register-form").style.display !== "none" &&
+            document.getElementById("auth-screen").style.display !== "none"
+          )
+            doRegister();
+        }
+      });
+    </script>
+  </body>
+</html>

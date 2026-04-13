@@ -1167,45 +1167,50 @@
       }
 
       // ── API helper ─────────────────────────────────────
-      const BASE_URL = "http://127.0.0.1:5000";
-
+      const BASE_URL =
+      window.location.hostname === "127.0.0.1"
+        ? "http://127.0.0.1:5000"
+        : "";
+  
       async function api(path, method = "GET", body = null, auth = true) {
-        const headers = { "Content-Type": "application/json" };
-
-        if (auth && token) {
-          headers["Authorization"] = "Bearer " + token;
-        }
-        console.log("Token :", token);
-        try {
-          const res = await fetch(BASE_URL + path, {
-            method: method,
-            headers: headers,
-            body: body ? JSON.stringify(body) : null,
-          });
-
-          let data;
-
-          try {
-            data = await res.json();
-          } catch (e) {
-            console.error("Invalid JSON response");
-            return { success: false, error: "Server error" };
-          }
-
-          console.log("API:", path, res.status, data);
-
-          if (res.status === 401 && auth) {
-            doLogout();
-            return { success: false, error: "Session expired." };
-          }
-
-          return data;
-        } catch (e) {
-          console.error("ERROR:", e);
-          return { success: false, error: "Network error." };
-        }
+      const headers = {
+        "Content-Type": "application/json",
+      };
+  
+      if (auth && token) {
+        headers["Authorization"] = "Bearer " + token;
       }
-
+  
+      try {
+        const res = await fetch(BASE_URL + path, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+        });
+  
+        // ✅ handle non-json safely
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          console.error("Invalid JSON response");
+          return { success: false, error: "Server error" };
+        }
+  
+        console.log("API:", path, res.status, data);
+  
+        // ✅ handle auth error
+        if (res.status === 401 && auth) {
+          doLogout();
+          return { success: false, error: "Session expired" };
+        }
+  
+        return data;
+        } catch (e) {
+        console.error("NETWORK ERROR:", e);
+        return { success: false, error: "Network error" };
+      }
+    }
       // ── Load Notes ─────────────────────────────────────
       async function loadNotes(page = 1) {
         currentPage = page;
